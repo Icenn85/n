@@ -1,0 +1,53 @@
+.basicBtn {
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 14px;
+  padding: 13px 25px;
+  border-radius: 16px;
+  background-color: transparent;
+  color: #52555f;
+  border: 2px solid #f5f6fb;
+  transition: all 300ms;
+}
+
+.basicBtn:hover,
+.basicBtn:focus {
+  background-color: #f5f6fb;
+}
+
+.accentBtn {
+  composes: basicBtn;
+  background-color: #ff751d;
+  border-color: #ff751d;
+  color: #ffffff;
+}
+
+.accentBtn:hover,
+.accentBtn:focus {
+  background-color: #f95f00;
+  border-color: #f95f00;
+}
+
+.secondaryBtn {
+  composes: basicBtn;
+  border-color: #ffffff;
+  color: #52555fb2;
+  font-weight: 400;
+}
+
+.secondaryBtn:hover,
+.secondaryBtn:focus {
+  background-color: #ffffff;
+}
+
+@media screen and (min-width: 320px) {
+  .basicBtn {
+    width: 90px;
+  }
+}
+
+@media screen and (min-width: 768px) {
+  .basicBtn {
+    width: 125px;
+  }
+}
