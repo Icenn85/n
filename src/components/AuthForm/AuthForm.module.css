@@ -130,7 +130,7 @@
 }
 }
 
-.labelStar {
+.spanLabel {
   color: #EB5757;
 }
 
@@ -157,6 +157,19 @@
   letter-spacing: 0.04em;
   color: #A6ABB9;
 }
+
+.errorMsg {
+  position: absolute;
+  left: 0;
+  bottom: -16px;
+
+  font-size: 10px;
+  line-height: 12px;
+  letter-spacing: 0.04em;
+
+  color: #eb5757;
+}
+
 
 .authBtn {
   display: flex;

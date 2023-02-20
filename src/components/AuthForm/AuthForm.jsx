@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { ReactComponent as GoogleIcon } from '../../images/google.svg';
-import { toast } from 'react-toastify';
 import { logIn, register } from '../../redux/auth/auth-operations';
 import css from './AuthForm.module.css';
 
@@ -9,75 +8,69 @@ const AuthForm = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [emptyInput, setEmptyInput] = useState(false);
-    const [emailError, setEmailError] = useState('This field is required');
-    const [passwordError, setPasswordError] = useState('This field is required');
-    const [errorSymbol, setErrorSymbol] = useState('*');
+  const [invalidEmail, setInvalidEmail] = useState(false);
+  const [shortLengthPassword, setShortLengthPassword] = useState(false);
     const dispatch = useDispatch();
 
   const handleChange = evt => {
-    setEmptyInput(false);
+     setEmptyInput(false);
 
-    switch (evt.target.name) {
-      case 'email':
-        setEmail(evt.target.value);
-        break;
-      case 'password':
-        setPassword(evt.target.value);
-        break;
-      default:
-        return;
-    }
+     switch (evt.target.name) {
+       case 'email':
+         setInvalidEmail(false);
+         setEmail(evt.target.value);
+         break;
+
+       case 'password':
+         setShortLengthPassword(false);
+         setPassword(evt.target.value);
+         break;
+
+       default:
+         return;
+     }
   };
 
-  const handleEmail = evt => {
-    setEmail(evt.target.value);
-    const regex =
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    if (!regex.test(String(evt.target.value).toLowerCase())) {
-      setEmailError('Incorrect email');
-      setErrorSymbol('*');
-      if (!evt.target.value) {
-        setEmailError('This field is required!!');
-        setErrorSymbol('*');
-      }
-    } else {
-      setEmailError('');
+  const checkValidData = () => {
+    let key = false;
+
+    if (email === '') {
+      setEmptyInput(true);
+      key = true;
     }
-    };
-    
-    const handlePassword = evt => {
-      setPassword(evt.target.value);
-      if (evt.target.value.length < 8) {
-        setPasswordError('Password should be at least 6 characters');
-        if (!evt.target.value) {
-          setPasswordError('This field is required!!');
-        }
-      } else {
-        setPasswordError('');
-      }
-    };
 
-    const onSubmitLogin = evt => {
-      evt.preventDefault();
-      const user = { email, password };
-        dispatch(logIn(user));
-    };
+    if (!email.includes('@')) {
+      setInvalidEmail(true);
+      key = true;
+    }
 
+    if (password.length < 8) {
+      setShortLengthPassword(true);
+      key = true;
+    }
 
-const onSubmitRegistr = evt => {
-  evt.preventDefault();
-  if (
-    emailError === 'Incorrect email' ||
-    emailError === ' ' ||
-    passwordError === 'Password should be at least 6 characters'
-  ) {
-    toast.warning('Please enter correct email information');
-    return;
-  } else {
+    return key;
+  };
+  
+  const handleLogin = evt => {
+    evt.preventDefault();
     const user = { email, password };
-    dispatch(register(user));
-  }
-};
+
+    if (checkValidData()) {
+      return;
+    }
+    dispatch(logIn(user));
+  };
+
+  const handleRegister = () => {
+    const user = { email, password };
+    if (checkValidData()) {
+      return;
+    }
+    dispatch(register(user))
+      .unwrap()
+      .then(() => dispatch(logIn(user)));
+  };
 
   return (
     <div className={css.container}>
@@ -92,14 +85,18 @@ const onSubmitRegistr = evt => {
         <p className={css.formText}>
           Or log in using an email and password, after registering:
         </p>
-        <form className={css.formBox} autoComplete="on">
+        <form className={css.formBox} autoComplete="on" onSubmit={handleLogin}>
           <label className={css.formLabel}>
-            {emptyInput && emailError && (
-              <span style={{ color: 'red', fontSize: 10, paddingTop: 4 }}>
-                {errorSymbol}
-              </span>
+            {emptyInput ? (
+              <>
+                <span>
+                  <span className={css.spanLabel}>*</span>
+                  Email:
+                </span>
+              </>
+            ) : (
+              'Email:'
             )}
-            Email:
             <input
               className={css.formInput}
               autoComplete="off"
@@ -107,17 +104,25 @@ const onSubmitRegistr = evt => {
               placeholder="your@email.com"
               value={email}
               name="email"
-              onBlur={handleChange}
-              onChange={handleEmail}
+              onChange={handleChange}
             />
+            <p className={css.errorMsg}>
+              {emptyInput
+                ? 'This is a required field'
+                : invalidEmail && 'Email must contain the symbol "@"'}
+            </p>
           </label>
           <label className={css.formLabel}>
-            {emptyInput && passwordError && (
-              <span style={{ color: 'red', fontSize: 10, paddingTop: 4 }}>
-                {errorSymbol}
-              </span>
+            {emptyInput ? (
+              <>
+                <span>
+                  <span className={css.spanLabel}>*</span>
+                  Password:
+                </span>
+              </>
+            ) : (
+              'Password:'
             )}
-            Password:
             <input
               className={css.formInput}
               autoComplete="off"
@@ -125,15 +130,20 @@ const onSubmitRegistr = evt => {
               placeholder="Password"
               value={password}
               name="password"
-              onBlur={handleChange}
-              onChange={handlePassword}
+              onChange={handleChange}
             />
+            <p className={css.errorMsg}>
+              {emptyInput
+                ? 'This is a required field'
+                : shortLengthPassword &&
+                  'Password length must be at least 8 characters'}
+            </p>
           </label>
           <div className={css.authBtn}>
-            <button className={css.btn} type="submit" onClick={onSubmitLogin}>
+            <button className={css.btn} type="submit">
               Log in
             </button>
-            <button className={css.btn} type="button" onClick={onSubmitRegistr}>
+            <button className={css.btn} type="button" onClick={handleRegister}>
               Registration
             </button>
           </div>
