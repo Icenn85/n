@@ -17,12 +17,10 @@ const AuthForm = () => {
 
      switch (evt.target.name) {
        case 'email':
-         setInvalidEmail(false);
          setEmail(evt.target.value);
          break;
 
        case 'password':
-         setShortLengthPassword(false);
          setPassword(evt.target.value);
          break;
 
@@ -32,44 +30,46 @@ const AuthForm = () => {
   };
 
   const checkValidData = () => {
-    let key = false;
 
     if (email === '') {
       setEmptyInput(true);
-      key = true;
     }
 
     if (!email.includes('@')) {
       setInvalidEmail(true);
-      key = true;
     }
-
     if (password.length < 8) {
       setShortLengthPassword(true);
-      key = true;
     }
 
-    return key;
+    return;
   };
   
   const handleLogin = evt => {
     evt.preventDefault();
-    const user = { email, password };
+    const credentials = { email, password };
 
     if (checkValidData()) {
       return;
     }
-    dispatch(logIn(user));
+    dispatch(logIn(credentials));
+
+    resetForm();
   };
 
   const handleRegister = () => {
-    const user = { email, password };
+    const credentials = { email, password };
     if (checkValidData()) {
       return;
     }
-    dispatch(register(user))
+    dispatch(register(credentials))
       .unwrap()
-      .then(() => dispatch(logIn(user)));
+      .then(() => dispatch(logIn(credentials)));
+  };
+
+  const resetForm = () => {
+    setEmail('');
+    setPassword('');
   };
 
   return (
